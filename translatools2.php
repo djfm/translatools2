@@ -124,13 +124,23 @@ class Translatools2 extends Module
 	public function activate()
 	{
 		if ($this->installVirtualLanguage())
+		{
 			Configuration::updateValue('TRANSLATOOLS2_IS_ACTIVE', '1');
+			return true;
+		}
+
+		return false;
 	}
 
 	public function deactivate()
 	{
 		if ($this->uninstallVirtualLanguage())
+		{
 			Configuration::updateValue('TRANSLATOOLS2_IS_ACTIVE', '0');
+			return true;
+		}
+
+		return false;
 	}
 
 	public function installVirtualLanguage()

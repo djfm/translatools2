@@ -1,3 +1,2 @@
 config*.xml
-data/cldr
-data/core.zip
+php_errors.log

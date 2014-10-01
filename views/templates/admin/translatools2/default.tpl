@@ -39,7 +39,7 @@
 					<div class="row">
 						<div class="col-lg-2">&nbsp;</div>
 						<div class="col-lg-8">
-							<button id='activate' data-confirm type="submit" class="btn btn-default btn-block">{l s='Activate!' mod='translatools'}</button>
+							<button type="submit" class="btn btn-default btn-block big-button">{l s='Activate Translatools!' mod='translatools'}</button>
 						</div>
 						<div class="col-lg-2">&nbsp;</div>
 					</div>
@@ -49,7 +49,22 @@
 		</div>
 	{/if}
 {else}
-	<div class="panel">
+	<div class="row">
+		<div class="col-lg-3">&nbsp;</div>
+		<div id="active" class="col-lg-6">
+			<form style="margin: 0" method="POST" action="{$ctrl_url}&amp;action=deactivate">
+				<div class="row">
+					<div class="col-lg-2">&nbsp;</div>
+					<div class="col-lg-8">
+						<button class='btn btn-default btn-block big-button' type="submit">{l s='Deactivate Translatools' mod='translatools2'}</button>
+					</div>
+					<div class="col-lg-2">&nbsp;</div>
+				</div>
+			</form>
+		</div>
+		<div class="col-lg-3">&nbsp;</div>
+	</div>
+	<!--div class="panel">
 		<div class="panel-heading">{l s='Configuration' mod='translatools2'}</div>
 		<div class="panel-body">
 			<div class="form-horizontal">
@@ -63,7 +78,7 @@
 				</div>
 			</form>
 		</div>
-	</div>
+	</div-->
 {/if}
 
 
