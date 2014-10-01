@@ -27,6 +27,8 @@
 if (defined('_PS_VERSION_') === false)
 	exit;
 
+require_once dirname(__FILE__).'/lib/PrestaShopTranslatableStringsExtractor.php';
+
 class Translatools2 extends Module
 {
 	public function __construct()
@@ -180,5 +182,11 @@ class Translatools2 extends Module
 	public function updateVirtualLanguage()
 	{
 
+	}
+
+	public function tmp()
+	{
+		$te = new PrestaShopTranslatableStringsExtractor();
+		ddd($te->extract());
 	}
 }

@@ -108,5 +108,6 @@ class AdminTranslatools2Controller extends ModuleAdminController
 
 	public function getDefaultAction()
 	{
+		$this->module->tmp();
 	}
 }
