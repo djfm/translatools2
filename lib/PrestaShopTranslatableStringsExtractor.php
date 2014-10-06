@@ -256,7 +256,49 @@ class PrestaShopTranslatableStringsExtractor
 			}
 		}
 
+		$this->extractFields();
+		$this->extractTabs();
+
 		return $this->lists;
+	}
+
+	private function extractFields()
+	{
+		$src = dirname(__FILE__).'/../data/fields';
+		if (file_exists($src) && ($data = file_get_contents($src)))
+		{
+			$dictionary = array();
+			foreach (preg_split('#\n+#', $data) as $line)
+			{
+				$left_right = explode(':', $line);
+				if (count($left_right) === 2)
+				{
+					$classes = array_map('trim', explode(',', $left_right[0]));
+					$fields = array_map('trim', explode(',', $left_right[1]));
+
+					foreach ($classes as $class)
+					{
+						foreach ($fields as $field)
+						{
+							$this->recordString(
+								['type' => 'field'],
+								$class.'_'.md5($field),
+								$field
+							);
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			throw new Exception("Could not find fields file!");
+		}
+	}
+
+	private function extractTabs()
+	{
+
 	}
 
 	private function recordString($file_identifier_array, $key, $string)
