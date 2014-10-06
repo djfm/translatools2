@@ -281,7 +281,7 @@ class PrestaShopTranslatableStringsExtractor
 						foreach ($fields as $field)
 						{
 							$this->recordString(
-								['type' => 'field'],
+								array('type' => 'field'),
 								$class.'_'.md5($field),
 								$field
 							);
@@ -298,7 +298,18 @@ class PrestaShopTranslatableStringsExtractor
 
 	private function extractTabs()
 	{
-
+		$blacklist = array('AdminTranslatools', 'AdminEmailGenerator');
+		if (class_exists('Tab')) // We  would not have this if running from CLI
+		{
+			$id_lang = Language::getIdByIso('en');
+			foreach(Tab::getTabs($id_lang) as $tab)
+			{
+				if (in_array($tab['class_name'], $blacklist))
+					continue;
+				if ($tab['name'] != '')
+					$this->recordString(array('type' => 'tab'), $tab['class_name'], $tab['name']);
+			}
+		}
 	}
 
 	private function recordString($file_identifier_array, $key, $string)
