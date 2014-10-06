@@ -15,8 +15,13 @@ class PrestaShopTranslatableStringsExtractor
 		$this->lists = array();
 	}
 
-	private function getLocatorFor($path)
+	private function getLocatorsFor($path)
 	{
+		$locators = array();
+
+		if (pathinfo($path, PATHINFO_EXTENSION) === 'php')
+			$locators[] = array('type' => 'emailSubject');
+
 		$path = str_replace('\\', '/', $path);
 
 		$admin_dirname = basename($this->getAdminDir());
@@ -27,7 +32,8 @@ class PrestaShopTranslatableStringsExtractor
 			preg_match('#^themes/(?:[^/]+)/pdf/$#', $path)
 		)
 		{
-			return array('type' => 'pdf');
+			$locators[] = array('type' => 'pdf');
+			return $locators;
 		}
 
 
@@ -42,8 +48,13 @@ class PrestaShopTranslatableStringsExtractor
 		);
 		
 		foreach ($regular_admin_prefixes as $prefix)
+		{
 			if (0 === strpos($path, $prefix))
-				return array('type' => 'bo', 'data_for_key' => 'regular');
+			{
+				$locators[] = array('type' => 'bo', 'data_for_key' => 'regular');
+				return $locators;
+			}
+		}
 
 		$specific_admin_files = array(
 			'header.inc.php',
@@ -53,24 +64,29 @@ class PrestaShopTranslatableStringsExtractor
 		);
 
 		foreach ($specific_admin_files as $file)
+		{
 			if (0 === strpos($path, $admin_dirname.'/'.$file))
-				return array('type' => 'bo', 'data_for_key' => 'specific');
+			{
+				$locators[] = array('type' => 'bo', 'data_for_key' => 'specific');
+				return $locators;
+			}
+		}
 
 		$m = array();
 		if (preg_match('#^modules/([^/]+)/#', $path, $m))
 		{
-			return array('type' => 'modules', 'data_for_key' => null, 'module' => $m[1]);
+			$locators[] = array('type' => 'modules', 'data_for_key' => null, 'module' => $m[1]);
 		}
 		elseif (preg_match('#^themes/([^/]+)/modules/([^/]+)/#', $path, $m))
 		{
-			return array('type' => 'modules', 'data_for_key' => $m[1], 'module' => $m[2]);
+			$locators[] = array('type' => 'modules', 'data_for_key' => $m[1], 'module' => $m[2]);
 		}
 		elseif (preg_match('#^themes/([^/]+)/.*\.tpl$#', $path, $m))
 		{
-			return array('type' => 'fo', 'theme' => $m[1]);
+			$locators[] = array('type' => 'fo', 'theme' => $m[1]);
 		}
 
-		return null;
+		return $locators;
 	}
 
 	private function getParserFor($locator, $ext)
@@ -93,6 +109,10 @@ class PrestaShopTranslatableStringsExtractor
 			elseif ($locator['type'] === 'pdf')
 			{
 				return new PrestaShopTranslatableStringParser('/HTMLTemplate\w*\s*::\s*l\s*\(\s*/');
+			}
+			elseif ($locator['type'] === 'emailSubject')
+			{
+				return new PrestaShopTranslatableStringParser('/Mail\s*::\s*l\s*\(\s*/');
 			}
 			
 			throw new Exception("Could not find adequate parser.");
@@ -182,6 +202,10 @@ class PrestaShopTranslatableStringsExtractor
 		{
 			return 'PDF'.md5($string);
 		}
+		elseif ($locator['type'] === 'emailSubject')
+		{
+			return $string;
+		}
 
 		throw new Exception("Could not compute key.");
 	}
@@ -198,9 +222,9 @@ class PrestaShopTranslatableStringsExtractor
 		{
 			$ext = pathinfo($path, PATHINFO_EXTENSION);
 
-			$locator = $this->getLocatorFor($this->getPathRelativeToRoot($path));
+			$locators = $this->getLocatorsFor($this->getPathRelativeToRoot($path));
 
-			if (null !== $locator)
+			foreach ($locators as $locator)
 			{
 				$parser = $this->getParserFor($locator, $ext);
 				$data_for_key = null;
