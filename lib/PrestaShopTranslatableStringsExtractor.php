@@ -26,7 +26,10 @@ class PrestaShopTranslatableStringsExtractor
 		}
 
 		if (pathinfo($path, PATHINFO_EXTENSION) === 'php')
+		{
 			$locators[] = array('type' => 'emailSubject');
+			$locators[] = array('type' => 'error');
+		}
 
 		$path = str_replace('\\', '/', $path);
 
@@ -124,6 +127,10 @@ class PrestaShopTranslatableStringsExtractor
 			{
 				return new PrestaShopTranslatableStringParser('/\bt\s*\(\s*/');
 			}
+			elseif ($locator['type'] === 'error')
+			{
+				return new PrestaShopTranslatableStringParser('/Tools\s*::\s*displayError\s*\(\s*/');
+			}
 			
 			throw new Exception("Could not find adequate parser.");
 		}
@@ -219,6 +226,10 @@ class PrestaShopTranslatableStringsExtractor
 		elseif ($locator['type'] === 'emailContent')
 		{
 			return $string;
+		}
+		elseif ($locator['type'] === 'error')
+		{
+			return md5($string);
 		}
 
 		throw new Exception("Could not compute key.");
