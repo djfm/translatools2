@@ -46,7 +46,7 @@ class PrestaShopTranslatableStringsExtractor
 				return array('type' => 'bo', 'data_for_key' => 'specific');
 
 		$m = array();
-		if (preg_match('#^modules/([^/]+)/#', $file, $m))
+		if (preg_match('#^modules/([^/]+)/#', $path, $m))
 		{
 			return array('type' => 'modules', 'data_for_key' => null, 'module' => $m[1]);
 		}
@@ -58,9 +58,6 @@ class PrestaShopTranslatableStringsExtractor
 		{
 			return array('type' => 'fo', 'theme' => $m[1]);
 		}
-
-		if (preg_match('#^modules/autoupgrade#', $path))
-			die("$path");
 
 		return null;
 	}
@@ -77,6 +74,10 @@ class PrestaShopTranslatableStringsExtractor
 					return new PrestaShopTranslatableStringParser('/\$this\s*->\s*l\s*\(\s*/');
 				elseif ($locator['data_for_key'] === 'specific')
 					return new PrestaShopTranslatableStringParser('/Translate\s*::\s*getAdminTranslation\s*\(\s*/');
+			}
+			elseif ($locator['type'] === 'modules')
+			{
+				return new PrestaShopTranslatableStringParser('/->\s*l\s*\(\s*/');
 			}
 			
 			throw new Exception("Could not find adequate parser.");

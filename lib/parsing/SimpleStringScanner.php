@@ -3,16 +3,16 @@
 class SimpleStringScanner
 {
 	private $string = null;
+	private $string_length = 0;
 	private $regexp = null;
 	private $pos    = 0;
-	private $internal_pos = 0;
 	private $got = array();
 
 	public function setString($string)
 	{
 		$this->string = $string;
+		$this->string_length = strlen($string);
 		$this->pos = 0;
-		$this->internal_pos = 0;
 		$this->got = array();
 		return $this;
 	}
@@ -28,16 +28,6 @@ class SimpleStringScanner
 		return $this->pos;
 	}
 
-	public static function strlen($string)
-	{
-		return mb_strlen($string, 'UTF-8');
-	}
-
-	public static function substr($string, $start = 0, $length = 1)
-	{
-		return mb_substr($string, $start, $length, 'UTF-8');
-	}
-
 	/**
 	 * Advances $pos to the next position after
 	 * the RegExp matches.
@@ -49,7 +39,7 @@ class SimpleStringScanner
 	 */
 	public function advance()
 	{
-		if ($this->pos >= self::strlen($this->string))
+		if ($this->pos >= $this->string_length)
 			return false;
 
 		$m = array();
@@ -58,20 +48,16 @@ class SimpleStringScanner
 			$this->string,
 			$m,
 			PREG_OFFSET_CAPTURE,
-			$this->internal_pos
+			$this->pos
 		);
 
 		$pos = $this->pos;
 
 		if ($matched)
 		{
-			$total_part_skipped = substr($this->string, 0, $m[0][1]);			
-			$mb_offset = self::strlen($total_part_skipped);
-			$this->pos = $mb_offset + self::strlen($m[0][0]);
+			$this->pos = $m[0][1] + strlen($m[0][0]);
 
-			$this->internal_pos = $m[0][1] + strlen($m[0][0]);
-
-			if ($this->pos >= self::strlen($this->string))
+			if ($this->pos >= $this->string_length)
 				return false;
 
 			if ($this->pos <= $pos)
@@ -81,17 +67,23 @@ class SimpleStringScanner
 		}
 		else
 		{
-			$this->pos = self::strlen($this->string);
+			$this->pos = $this->string_length;
 			return false;
 		}
 	}
 
 	public function peek($n = 1)
 	{
-		if ($this->pos + $n > self::strlen($this->string))
+		$next_chars = substr($this->string, $this->pos, 2*$n);
+		$peeked = mb_substr($next_chars, 0, $n, 'UTF-8');
+
+		if (!$peeked)
 			return false;
 
-		return self::substr($this->string, $this->pos, $n);
+		if (mb_strlen($peeked, 'UTF-8') !== $n)
+			return false;
+
+		return $peeked;
 	}
 
 	public function get($n = 1)
@@ -99,8 +91,7 @@ class SimpleStringScanner
 		$str = $this->peek($n);
 		if (false !== $str)
 		{
-			$this->pos += $n;
-			$this->internal_pos += strlen($str);
+			$this->pos += strlen($str);
 
 			$this->got[] = $str;
 			if (count($this->got) > 10)
@@ -116,8 +107,7 @@ class SimpleStringScanner
 		else
 		{
 			$str = array_pop($this->got);
-			$this->pos -= self::strlen($str);
-			$this->internal_pos -= strlen($str);
+			$this->pos -= strlen($str);
 
 			return $this->pos;
 		}

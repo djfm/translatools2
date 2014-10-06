@@ -45,7 +45,7 @@ class SimpleStringScannerTest extends PHPUnit_Framework_TestCase
 		->setString("hello wérld ")
 		->setRegExp('/wérld/u');
 
-		$this->assertEquals(11, $scanner->advance());
+		$this->assertEquals(12, $scanner->advance());
 		$this->assertEquals(false, $scanner->advance());
 	}
 
@@ -56,8 +56,8 @@ class SimpleStringScannerTest extends PHPUnit_Framework_TestCase
 		->setString("hello wéàld wéàld ")
 		->setRegExp('/wéàld/u');
 
-		$this->assertEquals(11, $scanner->advance());
-		$this->assertEquals(17, $scanner->advance());
+		$this->assertEquals(13, $scanner->advance());
+		$this->assertEquals(21, $scanner->advance());
 		$this->assertEquals(false, $scanner->advance());
 	}
 
@@ -86,7 +86,7 @@ class SimpleStringScannerTest extends PHPUnit_Framework_TestCase
 
 		$this->assertEquals('he', $scanner->get(2));
 		$this->assertEquals('llo ', $scanner->get(4));
-		$this->assertEquals(11, $scanner->advance());
+		$this->assertEquals(13, $scanner->advance());
 		$this->assertEquals(' ', $scanner->peek());
 		$this->assertEquals(' ', $scanner->get());
 		$this->assertEquals('wé', $scanner->get(2));
@@ -102,6 +102,6 @@ class SimpleStringScannerTest extends PHPUnit_Framework_TestCase
 
 		$this->assertEquals('hé', $scanner->get(2));
 		$this->assertEquals('llo ', $scanner->get(4));
-		$this->assertEquals(2, $scanner->unget(4));
+		$this->assertEquals(3, $scanner->unget(4));
 	}
 }
