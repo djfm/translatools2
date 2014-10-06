@@ -19,6 +19,12 @@ class PrestaShopTranslatableStringsExtractor
 	{
 		$locators = array();
 
+		if (0 === strpos($path, 'modules/emailgenerator/templates/'))
+		{
+			$locators[] = array('type' => 'emailContent');
+			return $locators;
+		}
+
 		if (pathinfo($path, PATHINFO_EXTENSION) === 'php')
 			$locators[] = array('type' => 'emailSubject');
 
@@ -114,6 +120,10 @@ class PrestaShopTranslatableStringsExtractor
 			{
 				return new PrestaShopTranslatableStringParser('/Mail\s*::\s*l\s*\(\s*/');
 			}
+			elseif ($locator['type'] === 'emailContent')
+			{
+				return new PrestaShopTranslatableStringParser('/\bt\s*\(\s*/');
+			}
 			
 			throw new Exception("Could not find adequate parser.");
 		}
@@ -203,6 +213,10 @@ class PrestaShopTranslatableStringsExtractor
 			return 'PDF'.md5($string);
 		}
 		elseif ($locator['type'] === 'emailSubject')
+		{
+			return $string;
+		}
+		elseif ($locator['type'] === 'emailContent')
 		{
 			return $string;
 		}
