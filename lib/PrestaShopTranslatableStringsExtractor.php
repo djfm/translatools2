@@ -21,6 +21,17 @@ class PrestaShopTranslatableStringsExtractor
 
 		$admin_dirname = basename($this->getAdminDir());
 
+		if (0 === strpos($path, 'classes/pdf/') ||
+			0 === strpos($path, 'override/classes/pdf/') ||
+			0 === strpos($path, 'pdf/') ||
+			preg_match('#^themes/(?:[^/]+)/pdf/$#', $path)
+		)
+		{
+			return array('type' => 'pdf');
+		}
+
+
+
 		$regular_admin_prefixes = array(
 			'controllers/admin/',
 			'override/controllers/admin/',
@@ -78,6 +89,10 @@ class PrestaShopTranslatableStringsExtractor
 			elseif ($locator['type'] === 'modules')
 			{
 				return new PrestaShopTranslatableStringParser('/->\s*l\s*\(\s*/');
+			}
+			elseif ($locator['type'] === 'pdf')
+			{
+				return new PrestaShopTranslatableStringParser('/HTMLTemplate\w*\s*::\s*l\s*\(\s*/');
 			}
 			
 			throw new Exception("Could not find adequate parser.");
@@ -163,6 +178,10 @@ class PrestaShopTranslatableStringsExtractor
 				'<{'.$locator['module'].'}prestashop>'.Tools::substr(basename($file), 0, -4).'_'.md5($string)
 			);
 		}
+		elseif ($locator['type'] === 'pdf')
+		{
+			return 'PDF'.md5($string);
+		}
 
 		throw new Exception("Could not compute key.");
 	}
@@ -185,7 +204,7 @@ class PrestaShopTranslatableStringsExtractor
 			{
 				$parser = $this->getParserFor($locator, $ext);
 				$data_for_key = null;
-				if (isset($locator['data_for_key']))
+				if (array_key_exists('data_for_key', $locator))
 				{
 					$data_for_key = $locator['data_for_key'];
 					unset($locator['data_for_key']);
